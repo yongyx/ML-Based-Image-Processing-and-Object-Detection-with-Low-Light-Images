@@ -132,8 +132,8 @@ def RED_loss(S, R, I, R_old, ln1=3, ln2=5, lambdas=None):
     term_i = local_norm(torch.abs(I_grad)) * torch.exp(-10 * local_norm(torch.abs(I_grad))) * torch.exp(
         -10 * W_R * local_norm(torch.abs(R_grad)))
 
-    L_rcon = torch.mean(R * I_full - S * torch.log(torch.abs(R * I_full))) + l1 * torch.mean(M)
-    L_r = l2 * torch.mean(term_r1) + l3 * torch.mean(torch.abs(term_r2))
+    L_rcon = torch.mean(torch.abs(R * I_full - S * torch.log(torch.abs(R * I_full)))) + l1 * torch.mean(torch.abs(M))
+    L_r = l2 * torch.mean(torch.abs(term_r1)) + l3 * torch.mean(torch.abs(term_r2))
     L_i = l4 * torch.mean(torch.abs(term_i))
 
     red_loss = L_rcon + L_r + L_i
