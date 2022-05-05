@@ -32,6 +32,7 @@ class CustomDataset(Dataset):
         img_path, class_name = self.data[idx]
         img = cv2.imread(img_path)
         img = cv2.resize(img, self.img_dim)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         class_key = self.class_map[class_name]
         class_key = torch.tensor([class_key])
 
