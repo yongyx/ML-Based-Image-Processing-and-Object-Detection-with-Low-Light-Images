@@ -49,26 +49,42 @@ def ICE_loss(S, R, I):
     :returns: loss for ICE-Net.
   '''
 
-  # Lambda hyperparam valuees as indicated in paper.
-  l1, l2, l3 = 0.1, 0.01, 0.1 
-  
-  # Extend 1-channel I to RGB image.
-  I_full = I.repeat(1,3,1,1)
-  
-  R_max, _ = torch.max(R, 1, keepdims=True)         # Get max channel of image.
-  S_max, _ = torch.max(S, 1, keepdims=True)
-  S_hist = [to_tensor(equalize(transforms.ToPILImage()(i))) for i in S]   # Implements histogram equalization.
-  S_hist = torch.stack(S_hist)
-  R_grad = grad(R)
-  
-  I_grad = grad(I)
-  
-  L_rcon = torch.mean(torch.abs(S - R * I_full))    # L1 norm = (1/N) * sum(abs(x))
-  L_r = l1 * torch.mean(torch.abs(R_max - S_hist)) + l2 * torch.mean(torch.abs(R_grad))
-  L_i = l3 * torch.mean(torch.abs(I_grad * torch.exp(-10 * torch.abs(R_grad))))
+    # Lambda hyperparam valuees as indicated in paper.
+    l1, l2, l3 = 0.1, 0.01, 0.1 
+    
+    # Extend 1-channel I to RGB image.
+    I_full = I.repeat(1,3,1,1)
+    
+    R_max, _ = torch.max(R, 1, keepdims=True)         # Get max channel of image.
+    S_max, _ = torch.max(S, 1, keepdims=True)
+    S_hist = [to_tensor(equalize(transforms.ToPILImage()(i))) for i in S]   # Implements histogram equalization.
+    S_hist = torch.stack(S_hist)
+    R_grad = grad(R)
+    
+    I_grad = grad(I)
+    
+    L_rcon = torch.mean(torch.abs(S - R * I_full))    # L1 norm = (1/N) * sum(abs(x))
+    L_r = l1 * torch.mean(torch.abs(R_max - S_hist)) + l2 * torch.mean(torch.abs(R_grad))
+    L_i = l3 * torch.mean(torch.abs(I_grad * torch.exp(-10 * torch.abs(R_grad))))
 
-  iceloss = L_rcon + L_r + L_i
-  return iceloss
+        # Extend 1-channel I to RGB image.
+    I_full = I.repeat(1, 3, 1, 1)
+
+    R_max, _ = torch.max(R, 1, keepdims=True)  # Get max channel of image.
+    S_max, _ = torch.max(S, 1, keepdims=True)
+    S_hist = equalize(S_max)  # Implements histogram equalization.
+    S_hist = S_hist/255
+    S_hist = S_hist.type(torch.float32)
+    R_grad = grad(R)
+
+    I_grad = grad(I)
+
+    L_rcon = torch.mean(torch.abs(S - R * I_full))  # L1 norm = (1/N) * sum(abs(x))
+    L_r = l1 * torch.mean(torch.abs(R_max - S_hist)) + l2 * torch.mean(torch.abs(R_grad))
+    L_i = l3 * torch.mean(torch.abs(I_grad * torch.exp(-10 * torch.abs(R_grad))))
+
+    iceloss = L_rcon + L_r + L_i
+    return iceloss
 
 
 def RED_loss(S, R, I, R_old, ln1=3, ln2=5, lambdas=None):

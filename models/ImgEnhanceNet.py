@@ -51,7 +51,7 @@ class ImgEnhanceNet(nn.Module):
         # print("conv8 x size: ", x.size())
         x = self.conv9(x)
         # print("conv9 x size: ", x.size())
-        R = self.RnI(x[:,0:3])
-        L = self.RnI(x[:,3:4])
+        R = self.RnI(x[:,0:3]) 
+        I = self.RnI(x[:,3:4]) 
 
-        return R, L
+        return R, I
