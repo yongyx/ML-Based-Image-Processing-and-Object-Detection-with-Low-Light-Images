@@ -3,8 +3,9 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 
-from torchvision.transforms.functional import equalize, gaussian_blur, rgb_to_grayscale
-from torchvision.transforms import GaussianBlur
+from torchvision.transforms.functional import equalize, gaussian_blur, rgb_to_grayscale, to_tensor
+from torchvision.transforms import GaussianBlur, ToTensor, ToPILImage, Resize
+from torchvision import transforms
 from torch import nn
 
 
