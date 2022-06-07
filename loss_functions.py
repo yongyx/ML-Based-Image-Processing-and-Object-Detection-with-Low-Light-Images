@@ -7,7 +7,10 @@ from torchvision.transforms.functional import equalize, gaussian_blur, rgb_to_gr
 from torchvision.transforms import GaussianBlur, ToTensor, ToPILImage, Resize
 from torchvision import transforms
 from torch import nn
+from scipy.signal import convolve
 
+
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 def grad(x):
     '''
@@ -22,17 +25,28 @@ def grad(x):
     if C != 1:
         x = rgb_to_grayscale(x).type(torch.float32)
 
-    kernel1 = np.transpose(np.array([[0, 0], [-1, 1]], dtype=np.float32).reshape((2, 2, 1, 1)), [3, 2, 0, 1])
-    kernel2 = np.transpose(np.array([[0, -1], [0, 1]], dtype=np.float32).reshape((2, 2, 1, 1)), [3, 2, 0, 1])
+#     kernel1 = np.transpose(np.array([[0, 0], [-1, 1]], dtype=np.float32).reshape((2, 2, 1, 1)), [3, 2, 0, 1])
+#     kernel2 = np.transpose(np.array([[0, -1], [0, 1]], dtype=np.float32).reshape((2, 2, 1, 1)), [3, 2, 0, 1])
 
-    conv1 = torch.nn.Conv2d(1, 1, kernel_size=3, stride=1, padding='same', bias=False)
-    conv1.weight = torch.nn.Parameter(torch.from_numpy(kernel1))
-    conv2 = torch.nn.Conv2d(1, 1, kernel_size=3, stride=1, padding='same', bias=False)
-    conv2.weight = torch.nn.Parameter(torch.from_numpy(kernel2))
+#     conv1 = torch.nn.Conv2d(1, 1, kernel_size=3, stride=1, padding='same', bias=False)
+#     conv1.weight = torch.nn.Parameter(torch.from_numpy(kernel1).to(device))
+#     conv2 = torch.nn.Conv2d(1, 1, kernel_size=3, stride=1, padding='same', bias=False)
+#     conv2.weight = torch.nn.Parameter(torch.from_numpy(kernel2).to(device))
 
-    out1 = conv1(x)
-    out2 = conv2(x)
-    return out1 + out2
+#     out1 = conv1(x)
+#     out2 = conv2(x)
+
+#     kernel = np.array([[-1,0,1]],dtype=np.float32)
+    kernel = (1/12)*np.array([[-1,8,0,-8,1]], dtype=np.float32)
+    Ix = [to_tensor(convolve(i[0].detach().cpu().numpy(), kernel, mode="same")).to(device) for i in x]
+    Iy = [to_tensor(convolve(i[0].detach().cpu().numpy(), kernel.T, mode="same")).to(device) for i in x]
+    Ix = torch.stack(Ix)
+    Iy = torch.stack(Iy)
+    
+#     print("gradient x shape: ", Ix.size())
+#     print("gradient y shape: ", Iy.size())
+    
+    return Ix + Iy
 
 
 def ICE_loss(S, R, I):
@@ -54,18 +68,32 @@ def ICE_loss(S, R, I):
     
     # Extend 1-channel I to RGB image.
     I_full = I.repeat(1,3,1,1)
+    I_full = I_full.to(device)
     
-    R_max, _ = torch.max(R, 1, keepdims=True)         # Get max channel of image.
+    R_max, _ = torch.max(R, 1, keepdims=True)   # Get max channel of image.
+    R_max = R_max.to(device)
     S_max, _ = torch.max(S, 1, keepdims=True)
-    S_hist = [to_tensor(equalize(transforms.ToPILImage()(i))) for i in S]   # Implements histogram equalization.
+    S_max = S_max.to(device)
+    S_hist = [to_tensor(equalize(transforms.ToPILImage()(i))).to(device) for i in S_max]   # Implements histogram equalization.
     S_hist = torch.stack(S_hist)
+#     print("S_hist size: ", S_hist.size())
+#     print("R_max size: ", R_max.size())
     R_grad = grad(R)
     
     I_grad = grad(I)
     
-    L_rcon = torch.mean(torch.abs(S - R * I_full))    # L1 norm = (1/N) * sum(abs(x))
-    L_r = l1 * torch.mean(torch.abs(R_max - S_hist)) + l2 * torch.mean(torch.abs(R_grad))
-    L_i = l3 * torch.mean(torch.abs(I_grad * torch.exp(-10 * torch.abs(R_grad))))
+#     L_rcon = torch.mean(torch.abs(S - R * I_full))   # L1 norm = (1/N) * sum(abs(x))
+#     L_r = l1 * torch.mean(torch.abs(R_max - S_hist)) + l2 * torch.mean(torch.abs(R_grad))
+#     L_i = l3 * torch.mean(torch.abs(I_grad * torch.exp(-10 * torch.abs(R_grad))))
+
+
+    L_rcon = torch.mean(torch.linalg.norm(S - R * I_full, ord=1, dim=0))
+    L_r = l1 * torch.mean(torch.linalg.norm(R_max - S_hist, ord=1, dim=0)) + l2 * torch.mean(torch.linalg.norm(R_grad, ord=1, dim=0))
+    L_i = l3 * torch.mean(torch.linalg.norm(I_grad * torch.exp(-10 * torch.abs(R_grad)), ord=1, dim=1))
+                          
+    L_rcon = L_rcon.to(device)
+    L_r = L_r.to(device)
+    L_i = L_i.to(device)
 
     iceloss = L_rcon + L_r + L_i
     return iceloss
