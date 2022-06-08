@@ -15,6 +15,8 @@ img_root
   +--- class2
   |     | images
 ```
+There is a preprocessing cell in the faster rcnn notebooks and you may need to manually remove/edit files if it doesn't take care of it itself.
+
 ## Object Detection with pre-trained Faster R-CNN
 To use pre-trained Faster R-CNN, make sure you have the dataset mentioned above and run ```faster rcnn-pretrained.ipynb```
 
