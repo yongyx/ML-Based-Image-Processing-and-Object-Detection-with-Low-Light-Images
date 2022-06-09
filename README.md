@@ -2,6 +2,11 @@
 
 ExDark Dataset can be found here: https://github.com/cs-chan/Exclusively-Dark-Image-Dataset
 
+# Image Enhancement With LIME/EnlightenGAN
+LIME and EnlightenGAN were provided from libraries and the code to use them to enhance/save images can be found in ```imen-apply.py```
+
+The EnlightenGAN model was installed from: https://github.com/arsenyinfo/EnlightenGAN-inference
+
 # Object Detection
 You will have to download the ExDark dataset (or enhanced images) into your own folder and move it into this repository folder.
 Your folder path should be of the form:
