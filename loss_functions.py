@@ -25,28 +25,17 @@ def grad(x):
     if C != 1:
         x = rgb_to_grayscale(x).type(torch.float32)
 
-#     kernel1 = np.transpose(np.array([[0, 0], [-1, 1]], dtype=np.float32).reshape((2, 2, 1, 1)), [3, 2, 0, 1])
-#     kernel2 = np.transpose(np.array([[0, -1], [0, 1]], dtype=np.float32).reshape((2, 2, 1, 1)), [3, 2, 0, 1])
+    kernel1 = np.transpose(np.array([[0, 0], [-1, 1]], dtype=np.float32).reshape((2, 2, 1, 1)), [3, 2, 0, 1])
+    kernel2 = np.transpose(np.array([[0, -1], [0, 1]], dtype=np.float32).reshape((2, 2, 1, 1)), [3, 2, 0, 1])
 
-#     conv1 = torch.nn.Conv2d(1, 1, kernel_size=3, stride=1, padding='same', bias=False)
-#     conv1.weight = torch.nn.Parameter(torch.from_numpy(kernel1).to(device))
-#     conv2 = torch.nn.Conv2d(1, 1, kernel_size=3, stride=1, padding='same', bias=False)
-#     conv2.weight = torch.nn.Parameter(torch.from_numpy(kernel2).to(device))
+    conv1 = torch.nn.Conv2d(1, 1, kernel_size=3, stride=1, padding='same', bias=False)
+    conv1.weight = torch.nn.Parameter(torch.from_numpy(kernel1))
+    conv2 = torch.nn.Conv2d(1, 1, kernel_size=3, stride=1, padding='same', bias=False)
+    conv2.weight = torch.nn.Parameter(torch.from_numpy(kernel2))
 
-#     out1 = conv1(x)
-#     out2 = conv2(x)
-
-#     kernel = np.array([[-1,0,1]],dtype=np.float32)
-    kernel = (1/12)*np.array([[-1,8,0,-8,1]], dtype=np.float32)
-    Ix = [to_tensor(convolve(i[0].detach().cpu().numpy(), kernel, mode="same")).to(device) for i in x]
-    Iy = [to_tensor(convolve(i[0].detach().cpu().numpy(), kernel.T, mode="same")).to(device) for i in x]
-    Ix = torch.stack(Ix)
-    Iy = torch.stack(Iy)
-    
-#     print("gradient x shape: ", Ix.size())
-#     print("gradient y shape: ", Iy.size())
-    
-    return Ix + Iy
+    out1 = conv1(x)
+    out2 = conv2(x)
+    return out1 + out2
 
 
 def ICE_loss(S, R, I):
