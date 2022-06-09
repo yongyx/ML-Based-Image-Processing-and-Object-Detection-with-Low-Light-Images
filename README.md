@@ -9,6 +9,10 @@ The EnlightenGAN model was installed from: https://github.com/arsenyinfo/Enlight
 
 The LIME model was made into a package and originally is from: https://github.com/aeinrw/LIME
 
+#Image Enhancement with ICENet/REDNET
+
+To run script to train ICENet, make sure that ExDar dataset is downloaded in the same directory as `train_IN.py`, then use the command `python train_IN.py`
+
 # Object Detection
 You will have to download the ExDark dataset (or enhanced images) into your own folder and move it into this repository folder.
 Your folder path should be of the form:
