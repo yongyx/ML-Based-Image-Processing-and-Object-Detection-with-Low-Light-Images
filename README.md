@@ -11,7 +11,9 @@ The LIME model was made into a package and originally is from: https://github.co
 
 # Image Enhancement with ICENet/REDNET
 
-To run script to train ICENet, make sure that ExDar dataset is downloaded in the same directory as `train_IN.py`, then use the command `python train_IN.py`. Arguments to pass to the console for training are within `train_IN.py`.
+To run script to train ICENet, make sure that ExDar dataset is downloaded in the same directory as `train_IN.py`, then type in the command line: <br>
+```python train_IN.py``` <br>
+Arguments to pass to the console for training are within `train_IN.py`.
 
 # Object Detection
 You will have to download the ExDark dataset (or enhanced images) into your own folder and move it into this repository folder.
