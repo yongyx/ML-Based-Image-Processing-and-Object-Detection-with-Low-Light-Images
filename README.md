@@ -6,6 +6,7 @@ ExDark Dataset can be found here: https://github.com/cs-chan/Exclusively-Dark-Im
 LIME and EnlightenGAN were provided from libraries and the code to use them to enhance/save images can be found in ```imen-apply.py```
 
 The EnlightenGAN model was installed from: https://github.com/arsenyinfo/EnlightenGAN-inference
+
 The LIME model was made into a package and originally is from: https://github.com/aeinrw/LIME
 
 # Object Detection
