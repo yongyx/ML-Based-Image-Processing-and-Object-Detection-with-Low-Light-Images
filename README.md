@@ -1,4 +1,4 @@
-# ECE-228-Object-Detection-on-Low-Light-Images
+# ECE-228-Object-Detection-in-Low-Light-Images
 
 ExDark Dataset can be found here: https://github.com/cs-chan/Exclusively-Dark-Image-Dataset
 
